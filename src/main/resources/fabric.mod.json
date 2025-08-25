@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "name": "Camera Head",
+  "id": "camera_head",
+  "version": "${version}",
+  "description": "Мод на камеры, работающие через головы",
+  "authors": [
+    "Kel Caffeine"
+  ],
+  "license": "GPL-3.0",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "ru.kelcu.camera.CameraHead"
+    ]
+  },
+  "mixins": [
+    "camera_head.mixin.json"
+  ],
+  "accessWidener": "camera_head.accesswidener",
+  "icon": "assets/camera_head/icon.png",
+  "depends": {
+    "fabricloader": "*",
+    "fabric": "*",
+    "alinlib": "*",
+    "camera_head": "*",
+    "minecraft": "${minecraft_dependency}"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "ru.kelcu.camera.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "BlockEntityRenderDispatcherMixin",
+    "CameraMixin",
+    "ClientPacketListenerMixin",
+    "EntityRenderDispatcherMixin",
+    "GameRendererMixin",
+    "GuiMixin",
+    "ItemInHandRendererMixin",
+    "LevelRendererMixin",
+    "LivingEntityRendererMixin",
+    "MinecraftMixin",
+    "MultiPlayerGameModeMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
