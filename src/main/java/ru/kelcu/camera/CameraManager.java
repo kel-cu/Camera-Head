@@ -29,6 +29,8 @@ public class CameraManager {
         xRot = camera == null ? 0f : camera.rotation;
         yRot = 0;
         fov = AlinLib.MINECRAFT.options.fov().get();
+//        if(isCameraMode) CameraHead.enable();
+//        else CameraHead.disable();
     }
 
     public record Camera(String name, BlockPos position, float rotation, BlockEntity blockEntity, CameraType cameraType){}

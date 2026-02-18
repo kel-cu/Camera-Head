@@ -1,24 +1,20 @@
 apply plugin: 'maven-publish'
-apply plugin: 'dev.architectury.loom'
+apply plugin: 'fabric-loom'
 apply plugin: 'com.replaymod.preprocess'
 apply plugin: 'me.fallenbreath.yamlang'
 apply plugin: 'io.github.goooler.shadow'
 apply plugin: 'com.modrinth.minotaur'
 
-def mod_brand = project.name.endsWith("-common") ? 'common' : (loom.platform.get() as String).toLowerCase()
+def mod_brand = "fabric"
 assert mod_brand in ['fabric', 'forge', 'neoforge', 'common']
-archivesBaseName = (project.archives_base_name == null ? rootProject.archives_base_name : project.archives_base_name) + "-" + mod_brand
+archives_base_name = (project.archives_base_name == null ? rootProject.archives_base_name : project.archives_base_name) + "-" + mod_brand
 group = rootProject.maven_group
 
 int mcVersion = 1
 preprocess {
     mcVersion = vars.get()["MC"] as int
     tabIndentation = true
-    vars.put("WALTER", archivesBaseName.startsWith("Walter") ? 1 : 0)
     vars.put("MC", mcVersion)
-    vars.put("FABRIC", mod_brand == 'fabric' ? 1 : 0)
-    vars.put("FORGE", mod_brand == 'forge' ? 1 : 0)
-    vars.put("NEOFORGE", mod_brand == 'neoforge' ? 1 : 0)
 }
 
 repositories {
@@ -112,7 +108,7 @@ components.java.withVariantsFromConfiguration(configurations.shadowRuntimeElemen
 
 jar {
     from("LICENSE.md") {
-        rename { "${it}_${project.archivesBaseName}"}
+        rename { "${it}_${project.archives_base_name}"}
     }
 }
 
@@ -146,7 +142,7 @@ processResources {
 modrinth {
     token = System.getenv("MODRINTH_TOKEN") // Remember to have the MODRINTH_TOKEN environment variable set or else this will fail - just make sure it stays private!
     versionName = project.modrinth_title != null ? project.modrinth_title + " " + rootProject.mod_version : rootProject.mod_version
-    projectId = "" // This can be the project ID or the slug. Either will work!
+    projectId = "camera-head" // This can be the project ID or the slug. Either will work!
     // You don't need to set this manually. Will fail if Modrinth has this version already
     changelog = file("../../changelog.md").text
     versionNumber = rootProject.mod_version
@@ -164,6 +160,5 @@ modrinth {
             required.project "fabric-api"
             optional.project "modmenu"
         }
-        optional.project "litematica"
     }
 }

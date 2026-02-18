@@ -6,6 +6,7 @@
   "client": [
     "BlockEntityRenderDispatcherMixin",
     "CameraMixin",
+    "CameraTypeMixin",
     "ClientPacketListenerMixin",
     "EntityRenderDispatcherMixin",
     "GameRendererMixin",
@@ -13,6 +14,7 @@
     "ItemInHandRendererMixin",
     "LevelRendererMixin",
     "LivingEntityRendererMixin",
+    "LivingEntityRenderStateAccess",
     "MinecraftMixin",
     "MultiPlayerGameModeMixin"
   ],

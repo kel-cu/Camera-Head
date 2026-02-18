@@ -7,6 +7,7 @@ import net.minecraft.client.multiplayer.prediction.PredictiveAction;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
 import net.minecraft.server.commands.data.BlockDataAccessor;
@@ -47,7 +48,7 @@ public abstract class MultiPlayerGameModeMixin {
 
     @Inject(method = "useItemOn", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;startPrediction(Lnet/minecraft/client/multiplayer/ClientLevel;Lnet/minecraft/client/multiplayer/prediction/PredictiveAction;)V"), cancellable = true)
     public void useItemOn(LocalPlayer localPlayer, InteractionHand interactionHand, BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir) {
-        if (localPlayer != AlinLib.MINECRAFT.player || !localPlayer.level().isClientSide) return;
+        if (localPlayer != AlinLib.MINECRAFT.player || !localPlayer.level().isClientSide()) return;
         if (localPlayer.isSpectator()) return;
         BlockPos blockPos = blockHitResult.getBlockPos();
         BlockState blockState = localPlayer.level().getBlockState(blockPos);
@@ -57,7 +58,11 @@ public abstract class MultiPlayerGameModeMixin {
             BlockDataAccessor dataAccessor = new BlockDataAccessor(blockEntity, blockPos);
             Tag tag = dataAccessor.getData().get("custom_name");
             if (tag != null) {
-                String name = tag.asString().get();
+                String name = tag.asString().isPresent() ? tag.asString().get() : "";
+                if(name.isBlank()){
+                    AlinLib.MINECRAFT.gui.getChat().addMessage(Component.translatable("camera_head.incorrect_tag_value"));
+                    return;
+                }
                 if (name.startsWith("monitor")) {
                     if (isFucking || System.currentTimeMillis() - lastFucking < 750) {
                         isFucking = false;
@@ -68,7 +73,7 @@ public abstract class MultiPlayerGameModeMixin {
                     String[] args = name.split(":");
                     if (args.length == 2) {
                         new Thread(() -> CameraManager.openMonitor(args[1], blockEntity, blockPos, localPlayer.level())).start();
-                        startPrediction(localPlayer.clientLevel, id -> new ServerboundUseItemOnPacket(interactionHand, blockHitResult, id));
+                        startPrediction((ClientLevel) localPlayer.level(), id -> new ServerboundUseItemOnPacket(interactionHand, blockHitResult, id));
                         cir.setReturnValue(InteractionResult.SUCCESS);
                     }
                 }
@@ -79,7 +84,7 @@ public abstract class MultiPlayerGameModeMixin {
 
     @Inject(method = "useItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;startPrediction(Lnet/minecraft/client/multiplayer/ClientLevel;Lnet/minecraft/client/multiplayer/prediction/PredictiveAction;)V"), cancellable = true)
     public void useItemOn(Player player, InteractionHand interactionHand, CallbackInfoReturnable<InteractionResult> cir) {
-        if (player != AlinLib.MINECRAFT.player || !player.level().isClientSide) return;
+        if (player != AlinLib.MINECRAFT.player || !player.level().isClientSide()) return;
         if (player.isSpectator()) return;
         if (player.getItemInHand(interactionHand).is(Items.PLAYER_HEAD)) {
             ItemStack item = player.getItemInHand(interactionHand);

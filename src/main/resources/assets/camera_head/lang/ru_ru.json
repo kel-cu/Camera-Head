@@ -1,5 +1,5 @@
 {
-  "camera_head": "Camera Head",
+  "camera_head": "CamHeads",
   "camera_head.camera": "Камера",
   "camera_head.camera.empty": "К этому монитору не подключены камеры!",
   "camera_head.camera.button": "Камера #%s",

@@ -26,7 +26,13 @@ public abstract class GuiMixin {
     @Inject(method = "render", at=@At("HEAD"), cancellable = true)
     public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci){
         if(!CameraManager.isCameraMode) return;
-        if (Minecraft.useFancyGraphics()) {
+        if (
+                //#if MC >= 12111
+                this.minecraft.options.vignette().get()
+                //#else
+                //$$Minecraft.useFancyGraphics()
+                //#endif
+        ) {
             this.renderVignette(guiGraphics, this.minecraft.getCameraEntity());
         }
         ci.cancel();

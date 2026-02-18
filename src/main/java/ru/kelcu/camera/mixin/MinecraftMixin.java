@@ -15,7 +15,7 @@ public class MinecraftMixin {
     private void setScreen(Screen screen, CallbackInfo ci) {
         if(CameraManager.isCameraMode && !(screen instanceof CameraScreen)) CameraManager.setCamera(null);
     }
-    @Inject(method = "disconnect", at=@At("HEAD"))
+    @Inject(method = "disconnect*", at=@At("HEAD"))
     public void disconnect(Screen screen, boolean bl, CallbackInfo ci){
         if(CameraManager.isCameraMode) CameraManager.setCamera(null);
     }

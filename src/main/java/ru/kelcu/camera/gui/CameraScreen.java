@@ -6,7 +6,16 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.gui.screens.Screen;
+//#if MC >= 12109
+import net.minecraft.client.gui.screens.WinScreen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+//#endif
 import net.minecraft.client.renderer.RenderPipelines;
+//#if MC >= 12111
+import net.minecraft.client.renderer.blockentity.AbstractEndPortalRenderer;
+import net.minecraft.client.renderer.texture.AbstractTexture;
+//#endif
 import net.minecraft.client.renderer.blockentity.TheEndPortalRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
@@ -38,7 +47,13 @@ public class CameraScreen extends Screen {
     public void renderBackground(GuiGraphics guiGraphics, int i, int j, float f) {
         if(isBreakCam){
             TextureManager textureManager = Minecraft.getInstance().getTextureManager();
-            TextureSetup textureSetup = TextureSetup.doubleTexture(textureManager.getTexture(TheEndPortalRenderer.END_SKY_LOCATION).getTextureView(), textureManager.getTexture(TheEndPortalRenderer.END_PORTAL_LOCATION).getTextureView());
+            //#if MC >= 12111
+            AbstractTexture abstractTexture = textureManager.getTexture(AbstractEndPortalRenderer.END_SKY_LOCATION);
+            AbstractTexture abstractTexture2 = textureManager.getTexture(AbstractEndPortalRenderer.END_PORTAL_LOCATION);
+            TextureSetup textureSetup = TextureSetup.doubleTexture(abstractTexture.getTextureView(), abstractTexture.getSampler(), abstractTexture2.getTextureView(), abstractTexture2.getSampler());
+            //#else
+            //$$TextureSetup textureSetup = TextureSetup.doubleTexture(textureManager.getTexture(TheEndPortalRenderer.END_SKY_LOCATION).getTextureView(), textureManager.getTexture(TheEndPortalRenderer.END_PORTAL_LOCATION).getTextureView());
+            //#endif
             guiGraphics.fill(RenderPipelines.END_PORTAL, textureSetup, 0, 0, guiGraphics.guiWidth(), guiGraphics.guiHeight());
             guiGraphics.drawCenteredString(font, Component.translatable("camera_head.camera.break"), width/2, (height/2)-(font.lineHeight/2), -1);
         }
@@ -147,7 +162,18 @@ public class CameraScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double d, double e, int i) {
+    public boolean mouseClicked(
+            //#if MC >= 12109
+            MouseButtonEvent mouseButtonEvent, boolean bl
+            //#else
+            //$$ double d, double e, int i
+            //#endif
+    ) {
+        //#if MC >= 12109
+        double d = mouseButtonEvent.x();
+        double e = mouseButtonEvent.y();
+        int i = mouseButtonEvent.button();
+        //#endif
         if(isF1) return false;
         int size = width-10;
         int x = 5;
@@ -156,12 +182,24 @@ public class CameraScreen extends Screen {
         for (GuiEventListener guiEventListener : this.children()) {
             if (scroller_pages != null && scroller_pages.widgets.contains(guiEventListener)) {
                 if ((d >= x && d <= x + size) && e <= 30)
-                    if (guiEventListener.mouseClicked(d, e, i)) {
+                    if (guiEventListener.mouseClicked(
+                            //#if MC < 12109
+                            //$$ d, e, i
+                            //#else
+                            mouseButtonEvent, bl
+                            //#endif
+                    )) {
                         st = false;
                         selected = guiEventListener;
                         break;
                     }
-            } else if (guiEventListener.mouseClicked(d, e, i)) {
+            } else if (guiEventListener.mouseClicked(
+                    //#if MC < 12109
+                    //$$ d, e, i
+                    //#else
+                    mouseButtonEvent, bl
+                    //#endif
+            )) {
                 st = false;
                 selected = guiEventListener;
                 break;
@@ -185,36 +223,76 @@ public class CameraScreen extends Screen {
     }
 
     @Override
-    public boolean mouseDragged(double d, double e, int i, double f, double g) {
+    public boolean mouseDragged(
+            //#if MC < 12109
+            //$$ double d, double e, int i,
+            //#else
+            MouseButtonEvent event,
+            //#endif
+                                double f, double g) {
+
+        //#if MC >= 12109
+        double e = event.x();
+        //#endif
         if(e>30) {
             if (f < 0) left(true);
             else if (f > 0) right(true);
             if (g < 0) top(true);
             else if (g > 0) down(true);
         }
-        return super.mouseDragged(d, e, i, f, g);
+        return super.mouseDragged(
+                //#if MC < 12109
+                //$$d, e, i
+                //#else
+                event
+                //#endif
+                , f, g);
     }
 
     @Override
-    public boolean keyPressed(int i, int j, int k) {
+    public boolean keyPressed(
+            //#if MC >= 12109
+            KeyEvent keyEvent
+            //#else
+            //$$ int i, int j, int k
+            //#endif
+    ) {
+
+        //#if MC >= 12109
+        int i = keyEvent.key();
+        //#endif
         if(i == GLFW.GLFW_KEY_F1) isF1 = !isF1;
-        if(i == GLFW.GLFW_KEY_RIGHT) {
+        if(i == GLFW.GLFW_KEY_RIGHT || i == GLFW.GLFW_KEY_D) {
             right(false);
             return true;
         }
-        if(i == GLFW.GLFW_KEY_LEFT) {
+        if(i == GLFW.GLFW_KEY_LEFT || i == GLFW.GLFW_KEY_A) {
             left(false);
             return true;
         }
-        if(i == GLFW.GLFW_KEY_UP) {
+        if(i == GLFW.GLFW_KEY_UP || i == GLFW.GLFW_KEY_W) {
             top(false);
             return true;
         }
-        if(i == GLFW.GLFW_KEY_DOWN) {
+        if(i == GLFW.GLFW_KEY_DOWN || i == GLFW.GLFW_KEY_S) {
             down(false);
             return true;
         }
-        return super.keyPressed(i, j, k);
+        if(i == GLFW.GLFW_KEY_PAGE_UP) {
+            CameraManager.fov = Math.clamp(CameraManager.fov-1f, 10f, 110f);
+            return true;
+        }
+        if(i == GLFW.GLFW_KEY_PAGE_DOWN) {
+            CameraManager.fov = Math.clamp(CameraManager.fov+1f, 10f, 110f);
+            return true;
+        }
+        return super.keyPressed(
+                //#if MC >= 12109
+                keyEvent
+                //#else
+                //$$ i, j, k
+                //#endif
+        );
     }
 
     public boolean isBreakCam = false;

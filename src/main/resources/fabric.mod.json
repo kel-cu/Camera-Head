@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "name": "Camera Head",
+  "name": "CamHeads",
   "id": "camera_head",
   "version": "${version}",
   "description": "Мод на камеры, работающие через головы",
@@ -12,6 +12,9 @@
   "entrypoints": {
     "client": [
       "ru.kelcu.camera.CameraHead"
+    ],
+    "main": [
+      "ru.kelcu.camera.CameraHeadCommon"
     ]
   },
   "mixins": [
